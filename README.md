@@ -379,6 +379,14 @@ Use these for custom styling:
 | **React 18 + 19** | Yes | Yes | Yes | No (react-spring) |
 | **Compound components** | Yes | Yes (Radix-style) | Yes | No (single component) |
 
+## AI Agent Skill
+
+GlideSheet ships an [Agent Skill](https://agentskills.io) so AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) understand the API and patterns out of the box.
+
+```bash
+npx skills add imri-engineer/glidesheet
+```
+
 ## Development
 
 ```bash
