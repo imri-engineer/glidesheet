@@ -9,6 +9,7 @@ import { Close } from './close';
 import { Title } from './title';
 import { Description } from './description';
 import { FloatingBar } from './floating-bar';
+import { Footer } from './footer';
 
 export const BottomSheet = {
   Root,
@@ -22,6 +23,7 @@ export const BottomSheet = {
   Title,
   Description,
   FloatingBar,
+  Footer,
 };
 
 export { useBottomSheet } from './hooks/use-bottom-sheet';

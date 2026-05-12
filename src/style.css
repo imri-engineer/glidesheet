@@ -120,6 +120,13 @@
   touch-action: inherit;
 }
 
+/* ── Footer ── */
+[data-glidesheet-footer] {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
 /* ── Safe area extension ── */
 [data-glidesheet-extension] {
   position: absolute;
