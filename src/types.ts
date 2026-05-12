@@ -28,6 +28,8 @@ export interface BottomSheetRootProps {
   onClose?: () => void;
   repositionInputs?: boolean;
   floating?: boolean;
+  progressiveOverlay?: boolean;
+  progressiveOverlayMaxOpacity?: number;
 }
 
 export interface SheetContextValue {
@@ -67,4 +69,7 @@ export interface SheetContextValue {
   setDescriptionId: (id: string) => void;
   repositionInputs: boolean;
   floating: boolean;
+  progressiveOverlay: boolean;
+  progressiveOverlayMaxOpacity: number;
+  dragProgress: number;
 }

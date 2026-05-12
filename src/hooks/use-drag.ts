@@ -56,6 +56,7 @@ export function useDrag({
   onDragEndProp,
 }: UseDragOptions) {
   const [isDragging, setIsDragging] = useState(false);
+  const [dragProgress, setDragProgress] = useState(0);
 
   const dragStartTime = useRef<Date | null>(null);
   const lastTimeDragPrevented = useRef<Date | null>(null);
@@ -161,6 +162,12 @@ export function useDrag({
       onDragSnapPoints({ draggedDistance });
     }
 
+    // Update drag progress (0 = closed, 1 = fully open)
+    const sheetTop = sheetRef.current.getBoundingClientRect().top;
+    const viewportHeight = window.innerHeight;
+    const progress = Math.max(0, Math.min(1, (viewportHeight - sheetTop) / viewportHeight));
+    setDragProgress(progress);
+
     if (isDraggingInDirection && !snapPoints) return;
 
     const opacityValue = 1 - percentageDragged;
@@ -257,6 +264,7 @@ export function useDrag({
 
   return {
     isDragging,
+    dragProgress,
     onPress,
     onDrag,
     onRelease,

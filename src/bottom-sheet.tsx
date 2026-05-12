@@ -35,6 +35,8 @@ export function Root({
   snapToSequentialPoint = false,
   repositionInputs = true,
   floating = false,
+  progressiveOverlay = false,
+  progressiveOverlayMaxOpacity = 0.35,
   onAnimationEnd,
   container = null,
 }: BottomSheetRootProps) {
@@ -238,6 +240,9 @@ export function Root({
         setDescriptionId,
         repositionInputs,
         floating,
+        progressiveOverlay,
+        progressiveOverlayMaxOpacity,
+        dragProgress: drag.dragProgress,
       }}
     >
       {children}

@@ -82,6 +82,13 @@
   opacity: 1;
 }
 
+/* ── Progressive overlay: no default background, controlled by JS ── */
+[data-glidesheet-overlay][data-progressive='true'] {
+  background: transparent;
+  animation: none;
+  opacity: 1;
+}
+
 /* ── Handle ── */
 [data-glidesheet-handle] {
   display: block;
