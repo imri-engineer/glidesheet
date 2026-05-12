@@ -13,7 +13,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/glidesheet"><img src="https://img.shields.io/npm/v/glidesheet.svg" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/glidesheet"><img src="https://img.shields.io/npm/dm/glidesheet.svg" alt="npm downloads" /></a>
-  <a href="https://github.com/imribalourd/glidesheet/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/glidesheet.svg" alt="license" /></a>
+  <a href="https://github.com/imri-engineer/glidesheet/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/glidesheet.svg" alt="license" /></a>
   <img src="https://img.shields.io/badge/react-18%20%7C%2019-blue" alt="React 18 | 19" />
   <img src="https://img.shields.io/badge/dependencies-0-brightgreen" alt="zero dependencies" />
 </p>
