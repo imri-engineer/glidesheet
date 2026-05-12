@@ -1,6 +1,7 @@
 import { forwardRef, useCallback, useMemo, type CSSProperties, type HTMLAttributes } from 'react';
 import { useSheetContext } from './context';
 import { useComposedRefs } from './hooks/use-composed-refs';
+import { TRANSITIONS } from './constants';
 
 export const Overlay = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   function Overlay({ style, ...props }, ref) {
@@ -36,6 +37,13 @@ export const Overlay = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
     const progressiveStyle = useMemo((): CSSProperties | undefined => {
       if (!progressiveOverlay) return undefined;
 
+      if (!isOpen) {
+        return {
+          backgroundColor: 'rgba(0, 0, 0, 0)',
+          transition: `background-color ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+        };
+      }
+
       const firstSnapPercent = hasSnapPoints
         ? getFirstSnapPercent(snapPoints!)
         : 0;
@@ -57,7 +65,7 @@ export const Overlay = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
         backgroundColor: `rgba(0, 0, 0, ${opacity})`,
         transition: 'none',
       };
-    }, [progressiveOverlay, dragProgress, progressiveOverlayMaxOpacity, hasSnapPoints, snapPoints]);
+    }, [progressiveOverlay, isOpen, dragProgress, progressiveOverlayMaxOpacity, hasSnapPoints, snapPoints]);
 
     return (
       <div
