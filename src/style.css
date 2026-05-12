@@ -1,9 +1,6 @@
 /* ── Sheet base ── */
 [data-glidesheet] {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   z-index: var(--glidesheet-z-index, 50);
   will-change: transform;
   overflow: hidden;
@@ -11,6 +8,13 @@
   transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
   animation-duration: 0.5s;
   animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Default positioning — bottom-anchored, full width */
+[data-glidesheet]:not([data-floating='true']) {
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 [data-glidesheet].glidesheet-dragging {
@@ -127,8 +131,11 @@
   background-color: inherit;
 }
 
-/* ── Floating mode ── */
+/* ── Floating mode — detached from edges with default offset ── */
 [data-glidesheet][data-floating='true'] {
+  bottom: var(--glidesheet-floating-offset, 0.625rem);
+  left: var(--glidesheet-floating-offset, 0.625rem);
+  right: var(--glidesheet-floating-offset, 0.625rem);
   border-radius: var(--glidesheet-floating-radius, 1rem);
 }
 

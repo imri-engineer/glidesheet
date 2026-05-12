@@ -101,11 +101,16 @@ export function Root({
   // ── Close/Open ──
   function closeSheet() {
     drag.cancelDrag();
-    // Restore transition so the close animation plays (drag sets transition: none)
+    // Clear all inline styles so CSS data-state="closed" takes over
     if (sheetRef.current) {
-      set(sheetRef.current, {
-        transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
-      });
+      reset(sheetRef.current);
+      sheetRef.current.style.transform = '';
+      sheetRef.current.style.transition = `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`;
+    }
+    if (overlayRef.current) {
+      reset(overlayRef.current);
+      overlayRef.current.style.opacity = '';
+      overlayRef.current.style.transition = '';
     }
     onClose?.();
     setIsOpen(false);
@@ -119,6 +124,11 @@ export function Root({
 
   function openSheet() {
     if (!isOpen) {
+      // Clear any leftover inline styles from previous drag/close
+      if (sheetRef.current) {
+        sheetRef.current.style.transform = '';
+        sheetRef.current.style.transition = '';
+      }
       hasBeenOpened.current = true;
       setIsOpen(true);
     }
