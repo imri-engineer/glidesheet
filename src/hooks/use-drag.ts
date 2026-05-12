@@ -72,7 +72,12 @@ export function useDrag({
     const date = new Date();
 
     if (element.tagName === 'SELECT') return false;
-    if (element.hasAttribute('data-glidesheet-no-drag') || element.closest('[data-glidesheet-no-drag]'))
+    if (
+      element.hasAttribute('data-glidesheet-no-drag') ||
+      element.closest('[data-glidesheet-no-drag]') ||
+      element.hasAttribute('data-vaul-no-drag') ||
+      element.closest('[data-vaul-no-drag]')
+    )
       return false;
     if (openTime.current && date.getTime() - openTime.current.getTime() < 500) return false;
     if (swipeAmount !== null && swipeAmount > 0) return true;
