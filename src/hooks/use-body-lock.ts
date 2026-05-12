@@ -15,6 +15,16 @@ export function useBodyLock({
   modal: boolean;
   noBodyStyles: boolean;
 }) {
+  // Prevent Chrome pull-to-refresh whenever a sheet is open (modal or not)
+  useIsomorphicLayoutEffect(() => {
+    if (!isOpen || noBodyStyles) return;
+    const original = document.documentElement.style.overscrollBehavior;
+    document.documentElement.style.overscrollBehavior = 'none';
+    return () => {
+      document.documentElement.style.overscrollBehavior = original;
+    };
+  }, [isOpen, noBodyStyles]);
+
   useIsomorphicLayoutEffect(() => {
     if (!isOpen || !modal || noBodyStyles) return;
 
@@ -37,8 +47,10 @@ function preventScrollDesktop(): () => void {
   const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
   const originalOverflow = document.body.style.overflow;
   const originalPaddingRight = document.body.style.paddingRight;
+  const originalOverscroll = document.documentElement.style.overscrollBehavior;
 
   document.body.style.overflow = 'hidden';
+  document.documentElement.style.overscrollBehavior = 'none';
   if (scrollbarWidth > 0) {
     document.body.style.paddingRight = `${scrollbarWidth}px`;
   }
@@ -46,6 +58,7 @@ function preventScrollDesktop(): () => void {
   return () => {
     document.body.style.overflow = originalOverflow;
     document.body.style.paddingRight = originalPaddingRight;
+    document.documentElement.style.overscrollBehavior = originalOverscroll;
   };
 }
 

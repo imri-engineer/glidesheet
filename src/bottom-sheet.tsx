@@ -101,6 +101,12 @@ export function Root({
   // ── Close/Open ──
   function closeSheet() {
     drag.cancelDrag();
+    // Restore transition so the close animation plays (drag sets transition: none)
+    if (sheetRef.current) {
+      set(sheetRef.current, {
+        transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+      });
+    }
     onClose?.();
     setIsOpen(false);
     // Only reset snap if uncontrolled — controlled consumers manage their own snap state
