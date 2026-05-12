@@ -340,8 +340,11 @@ Same API as Root, for nested sheets. Automatically handles parent stacking effec
 
 ```css
 :root {
-  --glidesheet-z-index: 50;            /* Sheet z-index */
-  --glidesheet-floating-radius: 1rem;  /* Floating mode border radius */
+  --glidesheet-z-index: 50;              /* Sheet z-index */
+  --glidesheet-floating-radius: 1rem;    /* Floating mode border radius */
+  --glidesheet-handle-radius: 1.5rem;    /* Handle top border radius */
+  --glidesheet-handle-bg: inherit;       /* Handle background */
+  --glidesheet-handle-pill-bg: rgba(0, 0, 0, 0.25); /* Handle pill color */
 }
 ```
 
