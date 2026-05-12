@@ -196,11 +196,7 @@ export function Root({
   }, []);
 
   useEffect(() => {
-    if (!isOpen) {
-      reset(document.documentElement, 'scrollBehavior');
-      return;
-    }
-    set(document.documentElement, { scrollBehavior: 'auto' });
+    if (!isOpen) return;
     openTime.current = new Date();
     hasBeenOpened.current = true;
     if (!modal) {
