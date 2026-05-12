@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 (2026-05-12)
+
+### Features
+- **AI agent skill** — ships a skill for Claude Code, Cursor, Copilot, Gemini CLI, etc. Install via `npx skills add imri-engineer/glidesheet`
+- **Handle redesign** — grab bar style matching native bottom sheet patterns
+
 ## 0.3.0 (2026-05-12)
 
 ### Features
