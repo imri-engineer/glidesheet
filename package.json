@@ -26,8 +26,8 @@
   ],
   "scripts": {
     "build": "bun run build:esm && bun run build:cjs && bun run build:types && bun run build:css",
-    "build:esm": "bun build ./src/index.ts --outfile dist/index.mjs --format esm --external react --external react-dom",
-    "build:cjs": "bun build ./src/index.ts --outfile dist/index.js --format cjs --external react --external react-dom",
+    "build:esm": "NODE_ENV=production bun build ./src/index.ts --outfile dist/index.mjs --format esm --external react --external react-dom",
+    "build:cjs": "NODE_ENV=production bun build ./src/index.ts --outfile dist/index.js --format cjs --external react --external react-dom",
     "build:types": "tsc --project tsconfig.build.json --emitDeclarationOnly",
     "build:css": "cp src/style.css dist/style.css",
     "test": "bun test",

@@ -7,7 +7,7 @@
 <p align="center">
   A performant React bottom sheet with reliable scroll-vs-drag detection.
   <br />
-  Zero dependencies. ~45KB. Built with Bun.
+  Zero dependencies. ~9KB gzipped. Built with Bun.
 </p>
 
 <p align="center">
@@ -48,7 +48,7 @@ GlideSheet was built to solve these problems. It focuses on one direction (botto
 - **`useBottomSheet()` hook** — Access state from any child component
 - **Zero dependencies** — Only React as peer dependency
 - **React 18 + 19** compatible
-- **~45KB ESM** bundle
+- **~9KB gzipped** bundle (JS + CSS)
 
 ## Installation
 
@@ -316,7 +316,7 @@ Use these for custom styling:
 
 | | GlideSheet | Vaul | react-modal-sheet | react-spring-bottom-sheet |
 |---|---|---|---|---|
-| **Bundle** | ~45KB | ~77KB | ~30KB + Motion | ~25KB + react-spring |
+| **Bundle** | ~9KB gzip | ~77KB | ~30KB + Motion | ~25KB + react-spring |
 | **Dependencies** | **0** | Radix Dialog | Motion | react-spring, react-use-gesture |
 | **Scroll-to-drag** | Native feel | Inconsistent | Manual config | Manual config |
 | **Snap points** | Fraction + px | Fraction + px | 0-1 range | Callback-based |
