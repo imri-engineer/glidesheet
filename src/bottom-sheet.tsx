@@ -103,9 +103,12 @@ export function Root({
     drag.cancelDrag();
     onClose?.();
     setIsOpen(false);
-    setTimeout(() => {
-      if (snapPoints) setActiveSnapPoint(snapPoints[0]);
-    }, TRANSITIONS.DURATION * 1000);
+    // Only reset snap if uncontrolled — controlled consumers manage their own snap state
+    if (activeSnapPointProp === undefined) {
+      setTimeout(() => {
+        if (snapPoints) setActiveSnapPoint(snapPoints[0]);
+      }, TRANSITIONS.DURATION * 1000);
+    }
   }
 
   function openSheet() {

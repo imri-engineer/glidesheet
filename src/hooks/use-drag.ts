@@ -215,9 +215,14 @@ export function useDrag({
     onDragEndProp?.();
 
     const swipeAmount = getTranslateY(sheetRef.current);
-    if (!event || !shouldDrag(event.target, false) || !swipeAmount || Number.isNaN(swipeAmount))
+    if (swipeAmount === null || Number.isNaN(swipeAmount)) {
+      resetDrawer();
       return;
-    if (dragStartTime.current === null) return;
+    }
+    if (!event || dragStartTime.current === null) {
+      resetDrawer();
+      return;
+    }
 
     const timeTaken = Date.now() - dragStartTime.current.getTime();
     const distMoved = pointerStart.current - event.pageY;
