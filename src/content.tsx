@@ -96,10 +96,6 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       if (atTop && deltaY > 0) {
         e.preventDefault();
       }
-      // Pulling up while at bottom → prevent bounce
-      if (atBottom && deltaY < 0) {
-        e.preventDefault();
-      }
     };
 
     el.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -143,6 +139,20 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       onPointerDown={(event) => {
         if (handleOnly) return;
         rest.onPointerDown?.(event);
+
+        // Don't capture pointer if touching inside a scrollable element that is not at top
+        const target = event.target as HTMLElement;
+        let node: HTMLElement | null = target;
+        while (node && node !== sheetRef.current) {
+          if (node.scrollHeight > node.clientHeight) {
+            const style = window.getComputedStyle(node);
+            if (/(auto|scroll)/.test(style.overflowY) && node.scrollTop > 1) {
+              return;
+            }
+          }
+          node = node.parentElement;
+        }
+
         pointerStartRef.current = { x: event.pageX, y: event.pageY };
         onPress(event);
       }}

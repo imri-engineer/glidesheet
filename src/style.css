@@ -5,7 +5,6 @@
   left: 0;
   right: 0;
   z-index: var(--glidesheet-z-index, 50);
-  touch-action: none;
   will-change: transform;
   overflow: hidden;
   overscroll-behavior: contain;
@@ -115,12 +114,6 @@
   width: max(100%, 2.75rem);
   height: max(100%, 2.75rem);
   touch-action: inherit;
-}
-
-/* ── Kill rubber-band bounce on ALL scrollable children ── */
-[data-glidesheet] *  {
-  overscroll-behavior: none;
-  -webkit-overflow-scrolling: auto;
 }
 
 /* ── Safe area extension ── */
