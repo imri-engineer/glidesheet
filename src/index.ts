@@ -8,6 +8,7 @@ import { Trigger } from './trigger';
 import { Close } from './close';
 import { Title } from './title';
 import { Description } from './description';
+import { FloatingBar } from './floating-bar';
 
 export const BottomSheet = {
   Root,
@@ -20,6 +21,7 @@ export const BottomSheet = {
   Close,
   Title,
   Description,
+  FloatingBar,
 };
 
 export { useBottomSheet } from './hooks/use-bottom-sheet';
