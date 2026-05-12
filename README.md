@@ -41,6 +41,9 @@ GlideSheet was built to solve these problems. It focuses on one direction (botto
 - **Modal & non-modal** — No `pointer-events: none` leak in non-modal mode
 - **Nested sheets** — Stacking with scale effect
 - **Floating mode** — Detached from edges with rounded corners
+- **Floating bar** — Element that hovers above the sheet and fades on expand
+- **Footer** — Non-scrollable slot pinned at the bottom for action buttons
+- **Progressive overlay** — Overlay opacity follows drag progress
 - **Focus trap** — Modal only, with focus restore on close
 - **ESC to close** — Built-in keyboard support
 - **iOS keyboard handling** — Via `visualViewport` API, no `position: fixed` hack
@@ -252,6 +255,8 @@ In non-modal mode, the page behind the sheet remains interactive. No overlay, no
 | `onRelease` | `(event, open) => void` | — | Called on pointer release |
 | `onAnimationEnd` | `(open: boolean) => void` | — | Called after open/close animation |
 | `onClose` | `() => void` | — | Called when sheet closes |
+| `progressiveOverlay` | `boolean` | `false` | Overlay opacity follows drag progress |
+| `progressiveOverlayMaxOpacity` | `number` | `0.35` | Max overlay opacity in progressive mode |
 
 ### `<BottomSheet.Content>`
 
@@ -285,6 +290,48 @@ Accessible title (`<h2>`). Linked to Content via `aria-labelledby`.
 
 Accessible description (`<p>`). Linked to Content via `aria-describedby`.
 
+### `<BottomSheet.Footer>`
+
+Non-scrollable area at the bottom of the sheet. Stays visible while content scrolls — ideal for action buttons.
+
+```tsx
+<BottomSheet.Content>
+  <BottomSheet.Handle />
+  <div style={{ overflowY: 'auto', flex: 1 }}>
+    {/* Scrollable content */}
+  </div>
+  <BottomSheet.Footer>
+    <button>Confirm</button>
+  </BottomSheet.Footer>
+</BottomSheet.Content>
+```
+
+### `<BottomSheet.FloatingBar>`
+
+A floating element that hovers above the sheet and fades out as the sheet expands. Useful for navigation pills, page indicators, or contextual actions.
+
+```tsx
+<BottomSheet.Root open={open} onOpenChange={setOpen}>
+  <BottomSheet.Portal>
+    <BottomSheet.Overlay />
+    <BottomSheet.FloatingBar className="my-pill">
+      <span>3 items selected</span>
+    </BottomSheet.FloatingBar>
+    <BottomSheet.Content className="my-sheet">
+      <BottomSheet.Handle />
+      {/* Content */}
+    </BottomSheet.Content>
+  </BottomSheet.Portal>
+</BottomSheet.Root>
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `gap` | `number` | `16` | Distance (px) between bar and sheet top |
+| `hideWhileDragging` | `boolean` | `false` | Hide bar during drag |
+| `fadeStartPercent` | `number` | `50` | Sheet height % where fade begins |
+| `fadeEndPercent` | `number` | `65` | Sheet height % where bar is fully hidden |
+
 ### `<BottomSheet.NestedRoot>`
 
 Same API as Root, for nested sheets. Automatically handles parent stacking effect.
@@ -310,6 +357,8 @@ Use these for custom styling:
 | `data-floating` | `"true"` \| `"false"` | Content |
 | `data-glidesheet-overlay` | — | Overlay |
 | `data-glidesheet-handle` | — | Handle |
+| `data-glidesheet-footer` | — | Footer |
+| `data-glidesheet-floating-bar` | — | FloatingBar |
 | `data-glidesheet-no-drag` | — | Any child (opt-out from drag) |
 
 ## Comparison
