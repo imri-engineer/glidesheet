@@ -1,24 +1,35 @@
-import { forwardRef, useCallback, useMemo, useState, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useCallback, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
 import { useSheetContext } from './context';
 
 const DEFAULT_GAP = 16;
-const FADE_START = 0.5;
-const FADE_END = 0.65;
+const FADE_START = 50;
+const FADE_END = 65;
 
 export interface FloatingBarProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   gap?: number;
   hideWhileDragging?: boolean;
-  fadeStart?: number;
-  fadeEnd?: number;
+  fadeStartPercent?: number;
+  fadeEndPercent?: number;
 }
 
 export const FloatingBar = forwardRef<HTMLDivElement, FloatingBarProps>(function FloatingBar(
-  { children, gap = DEFAULT_GAP, hideWhileDragging = false, fadeStart = FADE_START, fadeEnd = FADE_END, style, ...rest },
+  {
+    children,
+    gap = DEFAULT_GAP,
+    hideWhileDragging = false,
+    fadeStartPercent = FADE_START,
+    fadeEndPercent = FADE_END,
+    style,
+    ...rest
+  },
   ref,
 ) {
-  const { isOpen, isDragging, dragProgress, sheetRef } = useSheetContext();
+  const { isOpen, sheetRef } = useSheetContext();
   const [barHeight, setBarHeight] = useState(0);
+  const [position, setPosition] = useState({ top: 0, opacity: 0, visible: false });
+  const rafRef = useRef<number | null>(null);
+  const isDraggingRef = useRef(false);
 
   const measureRef = useCallback((node: HTMLDivElement | null) => {
     if (node) setBarHeight(node.offsetHeight);
@@ -33,19 +44,76 @@ export const FloatingBar = forwardRef<HTMLDivElement, FloatingBarProps>(function
     [ref, measureRef],
   );
 
-  const { fadeOpacity, slideOffset } = useMemo(() => {
-    if (dragProgress <= fadeStart) return { fadeOpacity: 1, slideOffset: 0 };
-    if (dragProgress >= fadeEnd) return { fadeOpacity: 0, slideOffset: 40 };
+  // RAF loop — track sheet position every frame (during drag AND transitions)
+  useEffect(() => {
+    if (!isOpen) {
+      setPosition({ top: 0, opacity: 0, visible: false });
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      return;
+    }
 
-    const progress = (dragProgress - fadeStart) / (fadeEnd - fadeStart);
-    return { fadeOpacity: 1 - progress, slideOffset: progress * 40 };
-  }, [dragProgress, fadeStart, fadeEnd]);
+    const update = () => {
+      const sheet = sheetRef.current;
+      if (!sheet) {
+        rafRef.current = requestAnimationFrame(update);
+        return;
+      }
 
-  if (!isOpen || fadeOpacity === 0) return null;
-  if (hideWhileDragging && isDragging) return null;
+      const sheetTop = sheet.getBoundingClientRect().top;
+      const viewportHeight = window.innerHeight;
+      const screenPercent = ((viewportHeight - sheetTop) / viewportHeight) * 100;
 
-  const sheetTop = sheetRef.current?.getBoundingClientRect().top ?? window.innerHeight;
-  const topPosition = sheetTop - gap - barHeight + slideOffset;
+      let fadeOpacity: number;
+      let slideOffset: number;
+
+      if (screenPercent <= fadeStartPercent) {
+        fadeOpacity = 1;
+        slideOffset = 0;
+      } else if (screenPercent >= fadeEndPercent) {
+        fadeOpacity = 0;
+        slideOffset = 40;
+      } else {
+        const progress = (screenPercent - fadeStartPercent) / (fadeEndPercent - fadeStartPercent);
+        fadeOpacity = 1 - progress;
+        slideOffset = progress * 40;
+      }
+
+      const topPos = sheetTop - gap - barHeight + slideOffset;
+
+      setPosition({
+        top: topPos,
+        opacity: fadeOpacity,
+        visible: fadeOpacity > 0,
+      });
+
+      rafRef.current = requestAnimationFrame(update);
+    };
+
+    rafRef.current = requestAnimationFrame(update);
+
+    // Track dragging via pointer events on document
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-glidesheet]') || target.closest('[data-glidesheet-handle]')) {
+        isDraggingRef.current = true;
+      }
+    };
+    const onPointerUp = () => {
+      isDraggingRef.current = false;
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('pointerup', onPointerUp);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('pointerup', onPointerUp);
+    };
+  }, [isOpen, sheetRef, gap, barHeight, fadeStartPercent, fadeEndPercent]);
+
+  if (!isOpen || !position.visible) return null;
+  if (hideWhileDragging && isDraggingRef.current) return null;
 
   return (
     <div
@@ -53,11 +121,12 @@ export const FloatingBar = forwardRef<HTMLDivElement, FloatingBarProps>(function
       data-glidesheet-floating-bar=""
       style={{
         position: 'fixed',
-        top: `${topPosition}px`,
+        top: `${position.top}px`,
         left: '50%',
         transform: 'translateX(-50%)',
-        zIndex: 'var(--glidesheet-z-index, 50)',
-        opacity: fadeOpacity,
+        zIndex: 'calc(var(--glidesheet-z-index, 50) + 1)',
+        opacity: position.opacity,
+        pointerEvents: position.opacity > 0 ? 'auto' : 'none',
         ...style,
       }}
       {...rest}
