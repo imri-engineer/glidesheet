@@ -18,6 +18,10 @@
   <img src="https://img.shields.io/badge/dependencies-0-brightgreen" alt="zero dependencies" />
 </p>
 
+<p align="center">
+  <a href="https://glide-sheet.com/">Documentation & Demos</a>
+</p>
+
 ---
 
 ## Why GlideSheet?
