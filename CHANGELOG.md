@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1 (2026-05-14)
+
+### Fixes
+- **iOS scroll regression** — restore scroll check in `onPointerDown` to prevent `setPointerCapture` from stealing touch control when inside a scrollable element not at top; `pointerStartRef` is still set so drag can activate if user scrolls back to top
+- **Progressive overlay blocking clicks** — add `pointer-events: none` to progressive overlay when the sheet is closed or when opacity is 0, preventing it from intercepting clicks on elements behind the sheet
+
 ## 0.5.0 (2026-05-14)
 
 ### Fixes
