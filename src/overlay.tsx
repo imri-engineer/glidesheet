@@ -31,7 +31,7 @@ export const Overlay = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       if (dismissible) closeSheet();
     }, [dismissible, closeSheet]);
 
-    if (!modal) return null;
+    if (!modal && !progressiveOverlay) return null;
 
     // Progressive overlay: opacity based on drag progress
     const progressiveStyle = useMemo((): CSSProperties | undefined => {
@@ -40,7 +40,6 @@ export const Overlay = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       if (!isOpen) {
         return {
           backgroundColor: 'rgba(0, 0, 0, 0)',
-          transition: `background-color ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
         };
       }
 

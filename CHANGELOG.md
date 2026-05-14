@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0 (2026-05-14)
+
+### Fixes
+- **Desktop/Android drag** — replaced `onPointerOut` with `onPointerLeave` on Content to prevent false drag interruptions caused by pointer events bubbling from child elements
+- **Android/responsive touch drag** — removed aggressive scroll check from `onPointerDown` that blocked drag initiation on non-scrollable areas (handle, header); scroll-vs-drag decision is now handled by `shouldDrag()` during `onDrag`, matching Vaul's approach
+- **Touch scroll prevention** — new `touchmove` listener on Content that `preventDefault`s on non-scrollable areas (handle, header, title) while preserving native scroll in scrollable children; when inside a scrollable child at `scrollTop=0` pulling down, also prevents default to let the sheet drag take over
+- **Handle touch-action** — changed from `pan-y` to `none` so the browser doesn't intercept touch gestures on the handle as native scroll
+- **touchmove cancelable check** — guard `preventDefault()` with `e.cancelable` to suppress `[Intervention] Ignored attempt to cancel a touchmove event with cancelable=false` warnings
+
+### Tests
+- Added `pointer-drag.test.tsx` with 7 tests covering pointer event handling, touch scroll prevention, and `cancelable=false` edge case
+
 ## 0.4.0 (2026-05-12)
 
 ### Features

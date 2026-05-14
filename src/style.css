@@ -10,6 +10,7 @@
   animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
+
 /* Default positioning — bottom-anchored, full width */
 [data-glidesheet]:not([data-floating='true']) {
   bottom: 0;
@@ -105,7 +106,7 @@
   cursor: pointer;
   border-radius: var(--glidesheet-handle-radius, 1.5rem) var(--glidesheet-handle-radius, 1.5rem) 0 0;
   background: var(--glidesheet-handle-bg, inherit);
-  touch-action: pan-y;
+  touch-action: none;
   outline: none;
 }
 

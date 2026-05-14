@@ -107,7 +107,7 @@ export function Root({
       sheetRef.current.style.transform = '';
       sheetRef.current.style.transition = `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`;
     }
-    if (overlayRef.current) {
+    if (overlayRef.current && !progressiveOverlay) {
       reset(overlayRef.current);
       overlayRef.current.style.opacity = '';
       overlayRef.current.style.transition = '';

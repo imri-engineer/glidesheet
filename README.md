@@ -138,6 +138,18 @@ GlideSheet handles the scroll-to-drag transition automatically. When your conten
 </BottomSheet.Content>
 ```
 
+### How scroll-vs-drag works
+
+GlideSheet uses a two-layer strategy to distinguish between scrolling content and dragging the sheet, working consistently across iOS, Android, and desktop:
+
+1. **Touch layer** — A `touchmove` listener on Content decides whether to let the browser scroll natively or to `preventDefault` so pointer events can drive the sheet drag:
+   - **Non-scrollable areas** (handle, header, title, footer): always prevents default — the sheet follows your finger.
+   - **Scrollable areas at `scrollTop=0` pulling down**: prevents default — the sheet drags down instead of rubber-banding.
+   - **Scrollable areas mid-scroll**: lets the browser scroll natively.
+   - Guards `e.cancelable` before calling `preventDefault()` to avoid `[Intervention]` warnings when the browser has already taken control.
+
+2. **Pointer layer** — The `shouldDrag()` function in `onDrag` walks up the DOM from the touch target to decide if the sheet should move. If the target is inside a scrollable element that isn't scrolled to the top, drag is blocked.
+
 To opt-out specific elements from drag:
 
 ```tsx

@@ -58,8 +58,9 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
     return () => cancelAnimationFrame(id);
   }, [hasSnapPoints]);
 
-  // Prevent overscroll bounce when at scroll boundaries
-  // When scrollTop=0 and pulling down, preventDefault to let our drag handler take over
+  // Prevent native touch scroll so pointer events can drive sheet drag.
+  // In scrollable areas: allow scroll, but preventDefault when at top pulling down.
+  // In non-scrollable areas: always preventDefault.
   useEffect(() => {
     const el = sheetRef.current;
     if (!el) return;
@@ -67,12 +68,12 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
     let startY = 0;
     let scrollableEl: HTMLElement | null = null;
 
-    const findScrollableParent = (target: EventTarget | null): HTMLElement | null => {
+    const findScrollable = (target: EventTarget | null): HTMLElement | null => {
       let node = target as HTMLElement | null;
       while (node && node !== el) {
         if (node.scrollHeight > node.clientHeight) {
-          const style = window.getComputedStyle(node);
-          if (/(auto|scroll)/.test(style.overflowY)) return node;
+          const cs = window.getComputedStyle(node);
+          if (/(auto|scroll)/.test(cs.overflowY)) return node;
         }
         node = node.parentElement;
       }
@@ -81,18 +82,21 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
 
     const onTouchStart = (e: TouchEvent) => {
       startY = e.touches[0].clientY;
-      scrollableEl = findScrollableParent(e.target);
+      scrollableEl = findScrollable(e.target);
     };
 
     const onTouchMove = (e: TouchEvent) => {
-      if (!scrollableEl) return;
+      if (!e.cancelable) return;
+
+      if (!scrollableEl) {
+        e.preventDefault();
+        return;
+      }
 
       const currentY = e.touches[0].clientY;
       const deltaY = currentY - startY;
       const atTop = scrollableEl.scrollTop <= 0;
-      const atBottom = scrollableEl.scrollTop + scrollableEl.offsetHeight >= scrollableEl.scrollHeight;
 
-      // Pulling down while at top → prevent scroll, let drag handle it
       if (atTop && deltaY > 0) {
         e.preventDefault();
       }
@@ -139,20 +143,6 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       onPointerDown={(event) => {
         if (handleOnly) return;
         rest.onPointerDown?.(event);
-
-        // Don't capture pointer if touching inside a scrollable element that is not at top
-        const target = event.target as HTMLElement;
-        let node: HTMLElement | null = target;
-        while (node && node !== sheetRef.current) {
-          if (node.scrollHeight > node.clientHeight) {
-            const style = window.getComputedStyle(node);
-            if (/(auto|scroll)/.test(style.overflowY) && node.scrollTop > 1) {
-              return;
-            }
-          }
-          node = node.parentElement;
-        }
-
         pointerStartRef.current = { x: event.pageX, y: event.pageY };
         onPress(event);
       }}
@@ -178,8 +168,8 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
         rest.onPointerUp?.(event);
         handlePointerUp(event);
       }}
-      onPointerOut={(event) => {
-        rest.onPointerOut?.(event);
+      onPointerLeave={(event) => {
+        rest.onPointerLeave?.(event);
         handlePointerUp(lastKnownPointerEventRef.current);
       }}
       onContextMenu={(event) => {
