@@ -144,6 +144,19 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
         if (handleOnly) return;
         rest.onPointerDown?.(event);
         pointerStartRef.current = { x: event.pageX, y: event.pageY };
+
+        const target = event.target as HTMLElement;
+        let node: HTMLElement | null = target;
+        while (node && node !== sheetRef.current) {
+          if (node.scrollHeight > node.clientHeight) {
+            const cs = window.getComputedStyle(node);
+            if (/(auto|scroll)/.test(cs.overflowY) && node.scrollTop > 0) {
+              return;
+            }
+          }
+          node = node.parentElement;
+        }
+
         onPress(event);
       }}
       onPointerMove={(event) => {
