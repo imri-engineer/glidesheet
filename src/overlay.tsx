@@ -40,6 +40,7 @@ export const Overlay = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       if (!isOpen) {
         return {
           backgroundColor: 'rgba(0, 0, 0, 0)',
+          pointerEvents: 'none' as const,
         };
       }
 
@@ -63,6 +64,7 @@ export const Overlay = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       return {
         backgroundColor: `rgba(0, 0, 0, ${opacity})`,
         transition: 'none',
+        pointerEvents: (opacity > 0 ? 'auto' : 'none') as 'auto' | 'none',
       };
     }, [progressiveOverlay, isOpen, dragProgress, progressiveOverlayMaxOpacity, hasSnapPoints, snapPoints]);
 
