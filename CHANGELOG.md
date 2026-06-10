@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.3 (2026-06-10)
+
+### Fixes
+- **Grab bar handle not theme-aware** — the handle pill's default colour was hard-coded to `rgba(0, 0, 0, 0.25)` (black), which is invisible/low-contrast in dark mode. The default now derives from the sheet's text colour via `color-mix(in srgb, currentColor 25%, transparent)`, so it stays visible in both light and dark themes with no consumer config. Because it follows `currentColor` (not the OS `color-scheme`), it tracks whatever theme system the host app uses — CSS class, data-attribute, or media query. The `--glidesheet-handle-pill-bg` override still takes precedence for a fixed colour.
+
 ## 0.5.2 (2026-06-10)
 
 ### Fixes
