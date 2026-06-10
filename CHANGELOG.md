@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.4 (2026-06-10)
+
+### Fixes
+- **Progressive overlay broken with snap points** — the progressive overlay was driven by a React `dragProgress` state updated only inside `onDrag`. Once the finger was released, the sheet animated to its snap point via CSS transition with no `onDrag` firing, so the overlay froze and jumped instead of tracking the motion (and at the lowest snap it could darken/steal scroll). The overlay is now driven by a `requestAnimationFrame` loop that reads the sheet's real on-screen position every frame — during the drag AND during snap/close transitions, in both directions — mirroring `<FloatingBar>`. While transparent the overlay keeps `pointer-events: none` so clicks/scroll pass through to the content behind (essential for non-modal sheets). All legacy overlay opacity writes in `useDrag`/`useSnapPoints` and the snap-point CSS opacity rule are now bypassed in progressive mode so the two systems no longer fight.
+
+### Features
+- **`progressiveOverlayFadeStart` / `progressiveOverlayFadeEnd` props** — control where the progressive overlay starts and finishes darkening. Each accepts a `number` (ratio of screen height, 0–1) or a `string` (fixed CSS px, e.g. `'340px'`), like `snapPoints`. Defaults: start = lowest visible snap point (so the overlay is transparent at rest), end = highest snap point.
+
 ## 0.5.3 (2026-06-10)
 
 ### Fixes

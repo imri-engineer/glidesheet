@@ -18,6 +18,7 @@ interface UseDragOptions {
   snapPointsOffset: number[];
   shouldFade: boolean;
   fadeFromIndex: number | undefined;
+  progressiveOverlay: boolean;
   onDragSnapPoints: (args: { draggedDistance: number }) => void;
   onReleaseSnapPoints: (args: {
     draggedDistance: number;
@@ -46,6 +47,7 @@ export function useDrag({
   snapPointsOffset,
   shouldFade,
   fadeFromIndex,
+  progressiveOverlay,
   onDragSnapPoints,
   onReleaseSnapPoints,
   getSnapPointsPercentageDragged,
@@ -56,7 +58,6 @@ export function useDrag({
   onDragEndProp,
 }: UseDragOptions) {
   const [isDragging, setIsDragging] = useState(false);
-  const [dragProgress, setDragProgress] = useState(0);
 
   const dragStartTime = useRef<Date | null>(null);
   const lastTimeDragPrevented = useRef<Date | null>(null);
@@ -154,27 +155,35 @@ export function useDrag({
     if (!isAllowedToDrag.current && !shouldDrag(event.target, isDraggingInDirection)) return;
 
     sheetRef.current.classList.add(DRAG_CLASS);
-    overlayRef.current?.classList.add(DRAG_CLASS);
     isAllowedToDrag.current = true;
     set(sheetRef.current, { transition: 'none' });
-    set(overlayRef.current, { transition: 'none' });
+    // In progressive mode the overlay is driven entirely by the RAF loop in
+    // overlay.tsx — never touch its class/opacity/transition here, or the two
+    // systems fight (frozen/jumping overlay, and it would also steal scroll).
+    if (!progressiveOverlay) {
+      overlayRef.current?.classList.add(DRAG_CLASS);
+      set(overlayRef.current, { transition: 'none' });
+    }
 
     if (snapPoints) {
       onDragSnapPoints({ draggedDistance });
     }
 
-    // Update drag progress (0 = closed, 1 = fully open)
-    const sheetTop = sheetRef.current.getBoundingClientRect().top;
-    const viewportHeight = window.innerHeight;
-    const progress = Math.max(0, Math.min(1, (viewportHeight - sheetTop) / viewportHeight));
-    setDragProgress(progress);
-
     if (isDraggingInDirection && !snapPoints) return;
 
     const opacityValue = 1 - percentageDragged;
-    if (shouldFade || (fadeFromIndex && activeSnapPointIndex === fadeFromIndex - 1)) {
+    if (
+      !progressiveOverlay &&
+      (shouldFade || (fadeFromIndex && activeSnapPointIndex === fadeFromIndex - 1))
+    ) {
       onDragProp?.(event, percentageDragged);
       set(overlayRef.current, { opacity: `${opacityValue}`, transition: 'none' }, true);
+    } else if (
+      progressiveOverlay &&
+      (shouldFade || (fadeFromIndex && activeSnapPointIndex === fadeFromIndex - 1))
+    ) {
+      // Still notify consumers of the drag percentage; don't touch the overlay DOM.
+      onDragProp?.(event, percentageDragged);
     }
 
     if (!snapPoints) {
@@ -188,11 +197,14 @@ export function useDrag({
       transform: 'translate3d(0, 0, 0)',
       transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
     });
-    overlayRef.current?.classList.remove(DRAG_CLASS);
-    set(overlayRef.current, {
-      transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
-      opacity: '1',
-    });
+    // Progressive overlay is RAF-driven; don't reset it via DOM here.
+    if (!progressiveOverlay) {
+      overlayRef.current?.classList.remove(DRAG_CLASS);
+      set(overlayRef.current, {
+        transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+        opacity: '1',
+      });
+    }
   }
 
   function cancelDrag() {
@@ -271,7 +283,6 @@ export function useDrag({
 
   return {
     isDragging,
-    dragProgress,
     onPress,
     onDrag,
     onRelease,

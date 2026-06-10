@@ -37,6 +37,8 @@ export function Root({
   floating = false,
   progressiveOverlay = false,
   progressiveOverlayMaxOpacity = 0.35,
+  progressiveOverlayFadeStart,
+  progressiveOverlayFadeEnd,
   onAnimationEnd,
   container = null,
 }: BottomSheetRootProps) {
@@ -96,6 +98,7 @@ export function Root({
     onSnapPointChange,
     container,
     snapToSequentialPoint,
+    progressiveOverlay,
   });
 
   // ── Close/Open ──
@@ -151,6 +154,7 @@ export function Root({
     snapPointsOffset,
     shouldFade,
     fadeFromIndex,
+    progressiveOverlay,
     onDragSnapPoints,
     onReleaseSnapPoints,
     getSnapPointsPercentageDragged,
@@ -260,7 +264,8 @@ export function Root({
         floating,
         progressiveOverlay,
         progressiveOverlayMaxOpacity,
-        dragProgress: drag.dragProgress,
+        progressiveOverlayFadeStart,
+        progressiveOverlayFadeEnd,
       }}
     >
       {children}

@@ -14,6 +14,7 @@ export function useSnapPoints({
   onSnapPointChange,
   container,
   snapToSequentialPoint,
+  progressiveOverlay,
 }: {
   activeSnapPointProp?: SnapPoint | null;
   setActiveSnapPointProp?: (sp: SnapPoint | null) => void;
@@ -24,6 +25,7 @@ export function useSnapPoints({
   onSnapPointChange: (activeSnapPointIndex: number) => void;
   container?: HTMLElement | null;
   snapToSequentialPoint?: boolean;
+  progressiveOverlay?: boolean;
 }) {
   const [activeSnapPoint, setActiveSnapPoint] = useControllableState<SnapPoint | null>({
     prop: activeSnapPointProp,
@@ -94,28 +96,42 @@ export function useSnapPoints({
         transform: `translate3d(0, ${dimension}px, 0)`,
       });
 
-      if (
-        snapPointsOffset &&
-        newIndex !== snapPointsOffset.length - 1 &&
-        fadeFromIndex !== undefined &&
-        newIndex !== fadeFromIndex &&
-        newIndex !== null &&
-        newIndex < fadeFromIndex
-      ) {
-        set(overlayRef.current, {
-          transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
-          opacity: '0',
-        });
-      } else {
-        set(overlayRef.current, {
-          transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
-          opacity: '1',
-        });
+      // In progressive mode the overlay is driven by the RAF loop in overlay.tsx
+      // (it tracks the sheet's real position frame-by-frame, including during this
+      // snap transition). Forcing a binary opacity 0/1 here would fight it and make
+      // the overlay jump. So skip all overlay DOM writes when progressive.
+      if (!progressiveOverlay) {
+        if (
+          snapPointsOffset &&
+          newIndex !== snapPointsOffset.length - 1 &&
+          fadeFromIndex !== undefined &&
+          newIndex !== fadeFromIndex &&
+          newIndex !== null &&
+          newIndex < fadeFromIndex
+        ) {
+          set(overlayRef.current, {
+            transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+            opacity: '0',
+          });
+        } else {
+          set(overlayRef.current, {
+            transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+            opacity: '1',
+          });
+        }
       }
 
       setActiveSnapPoint(snapPoints?.[Math.max(newIndex ?? 0, 0)]);
     },
-    [sheetRef.current, snapPoints, snapPointsOffset, fadeFromIndex, overlayRef, setActiveSnapPoint],
+    [
+      sheetRef.current,
+      snapPoints,
+      snapPointsOffset,
+      fadeFromIndex,
+      overlayRef,
+      setActiveSnapPoint,
+      progressiveOverlay,
+    ],
   );
 
   useEffect(() => {
@@ -146,7 +162,7 @@ export function useSnapPoints({
     const isFirst = activeSnapPointIndex === 0;
     const hasDraggedUp = draggedDistance > 0;
 
-    if (isOverlaySnapPoint) {
+    if (isOverlaySnapPoint && !progressiveOverlay) {
       set(overlayRef.current, {
         transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
       });

@@ -98,11 +98,22 @@
   opacity: 1;
 }
 
-/* ── Progressive overlay: no default background, controlled by JS ── */
-[data-glidesheet-overlay][data-progressive='true'] {
+/* ── Progressive overlay: fully JS-driven (RAF loop in overlay.tsx) ──
+   background-color (alpha) and pointer-events are written every frame from the
+   sheet's real position. The element stays opacity:1 with NO transition so the
+   per-frame background-color updates render immediately. pointer-events default
+   to none so that, while transparent (sheet at its lowest snap), clicks/scroll
+   pass through to the content behind — the RAF flips it to auto only once the
+   overlay actually darkens. This rule wins over the snap-point opacity rules
+   above so the two systems never fight. */
+[data-glidesheet-overlay][data-progressive='true'],
+[data-glidesheet-overlay][data-progressive='true'][data-snap-points='true'],
+[data-glidesheet-overlay][data-progressive='true'][data-snap-points-overlay='true'] {
   background: transparent;
   animation: none;
+  transition: none;
   opacity: 1;
+  pointer-events: none;
 }
 
 /* ── Handle (grab bar) ── */

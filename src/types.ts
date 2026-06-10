@@ -30,6 +30,19 @@ export interface BottomSheetRootProps {
   floating?: boolean;
   progressiveOverlay?: boolean;
   progressiveOverlayMaxOpacity?: number;
+  /**
+   * Where the progressive overlay STARTS to darken, as a sheet-coverage threshold.
+   * `number` = ratio of screen height (0–1), `string` = fixed CSS px (e.g. '340px').
+   * Below this the overlay is fully transparent (clicks/scroll pass through).
+   * Defaults to the lowest visible snap point, so the overlay is transparent at rest.
+   */
+  progressiveOverlayFadeStart?: SnapPoint;
+  /**
+   * Where the progressive overlay reaches `progressiveOverlayMaxOpacity`.
+   * `number` = ratio of screen height (0–1), `string` = fixed CSS px.
+   * Defaults to the highest snap point.
+   */
+  progressiveOverlayFadeEnd?: SnapPoint;
 }
 
 export interface SheetContextValue {
@@ -71,5 +84,6 @@ export interface SheetContextValue {
   floating: boolean;
   progressiveOverlay: boolean;
   progressiveOverlayMaxOpacity: number;
-  dragProgress: number;
+  progressiveOverlayFadeStart: SnapPoint | undefined;
+  progressiveOverlayFadeEnd: SnapPoint | undefined;
 }
