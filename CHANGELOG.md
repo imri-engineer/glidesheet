@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.2 (2026-06-10)
+
+### Fixes
+- **Overlay flash on drag-to-close** — when dragging a non-snap-point sheet down to close it, the overlay briefly jumped back to full opacity for one frame before fading out (visible flash/flicker). Cause: the overlay's inline `opacity` is lowered live during the drag, but the close was driven by `@keyframes glidesheet-fadeOut` (which has no `from` and ignores the current inline value), so the browser re-rendered the overlay at its base opacity before animating to 0. The overlay now fades out via a plain `opacity` transition that starts from its current value — continuous, no flash (matches Vaul's behaviour). The `glidesheet-dragging` class is now also applied to the overlay so its transition is suppressed during the drag (1:1 finger tracking). Removed the now-unused `glidesheet-fadeOut` keyframe.
+
 ## 0.5.1 (2026-05-14)
 
 ### Fixes

@@ -154,6 +154,7 @@ export function useDrag({
     if (!isAllowedToDrag.current && !shouldDrag(event.target, isDraggingInDirection)) return;
 
     sheetRef.current.classList.add(DRAG_CLASS);
+    overlayRef.current?.classList.add(DRAG_CLASS);
     isAllowedToDrag.current = true;
     set(sheetRef.current, { transition: 'none' });
     set(overlayRef.current, { transition: 'none' });
@@ -187,6 +188,7 @@ export function useDrag({
       transform: 'translate3d(0, 0, 0)',
       transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
     });
+    overlayRef.current?.classList.remove(DRAG_CLASS);
     set(overlayRef.current, {
       transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
       opacity: '1',

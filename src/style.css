@@ -63,14 +63,26 @@
 [data-glidesheet-overlay][data-snap-points='false'] {
   animation-duration: 0.5s;
   animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 [data-glidesheet-overlay][data-snap-points='false'][data-state='open'] {
   animation-name: glidesheet-fadeIn;
 }
 
-[data-glidesheet-overlay][data-state='closed'] {
-  animation-name: glidesheet-fadeOut;
+/* Close: fade out via transition (opacity → 0), NOT @keyframes fadeOut.
+   The drag lowers the overlay's inline opacity live; a keyframe fadeOut (no
+   `from`) ignores that inline value and jumps the overlay back up for one frame
+   before disappearing → visible flash. A transition fades continuously from the
+   current opacity to 0. */
+[data-glidesheet-overlay][data-snap-points='false'][data-state='closed'] {
+  opacity: 0;
+}
+
+/* During drag the inline opacity is authoritative — kill the transition so the
+   overlay tracks the finger 1:1 with no easing lag. */
+[data-glidesheet-overlay].glidesheet-dragging {
+  transition: none !important;
 }
 
 [data-glidesheet-overlay][data-snap-points='true'] {
@@ -174,11 +186,5 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes glidesheet-fadeOut {
-  to {
-    opacity: 0;
   }
 }
