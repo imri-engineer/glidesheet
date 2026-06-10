@@ -8,7 +8,7 @@ import { useDrag } from './hooks/use-drag';
 import { useKeyboard } from './hooks/use-keyboard';
 import { useNested } from './hooks/use-nested';
 import { set, reset } from './utils/style-cache';
-import { TRANSITIONS, CLOSE_THRESHOLD, SCROLL_LOCK_TIMEOUT } from './constants';
+import { TRANSITIONS, CLOSE_THRESHOLD, SCROLL_LOCK_TIMEOUT, DRAG_CLASS } from './constants';
 import type { BottomSheetRootProps } from './types';
 
 export function Root({
@@ -107,8 +107,11 @@ export function Root({
       sheetRef.current.style.transform = '';
       sheetRef.current.style.transition = `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`;
     }
+    // Hand the overlay back to CSS: drop the dragging class (re-enabling its opacity
+    // transition) and clear the inline opacity so the [data-state="closed"] rule
+    // (opacity: 0) fades it out continuously from its current value — no flash.
     if (overlayRef.current && !progressiveOverlay) {
-      reset(overlayRef.current);
+      overlayRef.current.classList.remove(DRAG_CLASS);
       overlayRef.current.style.opacity = '';
       overlayRef.current.style.transition = '';
     }
