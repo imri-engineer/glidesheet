@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.5 (2026-06-22)
+
+### Changes
+- **Grab bar handle pill size** — the default handle pill is now `45×5px` (was `50×4px`): slightly narrower and a touch thicker.
+
 ## 0.5.3 (2026-06-10)
 
 ### Fixes
