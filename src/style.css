@@ -125,7 +125,7 @@
 [data-glidesheet-handle-hitarea] {
   display: block;
   pointer-events: none;
-  width: 45px;
+  width: 40px;
   height: 5px;
   border-radius: 9999px;
   /* Theme-aware default: derive the pill colour from the sheet's text colour
