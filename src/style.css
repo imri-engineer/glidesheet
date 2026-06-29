@@ -120,11 +120,18 @@
   background: var(--glidesheet-handle-bg, inherit);
   touch-action: none;
   outline: none;
+  /* The clickable/toggle area is restricted to the pill (+ its invisible hit
+     padding below) instead of the full-width bar. Without this, tapping
+     anywhere across the 98%-wide handle triggered the snap-point toggle. */
+  pointer-events: none;
 }
 
 [data-glidesheet-handle-hitarea] {
   display: block;
-  pointer-events: none;
+  position: relative;
+  /* Only the pill (and its ::before hit-padding) receives pointer events, so a
+     tap registers near the visible grab pill, not across the whole bar. */
+  pointer-events: auto;
   width: 40px;
   height: 5px;
   border-radius: 9999px;
@@ -135,6 +142,17 @@
      the OS color-scheme. Override with --glidesheet-handle-pill-bg for a fixed
      colour. */
   background: var(--glidesheet-handle-pill-bg, color-mix(in srgb, currentColor 25%, transparent));
+}
+
+/* Invisible, generous touch target around the pill. Absolutely positioned with
+   negative inset so it extends the clickable zone WITHOUT affecting the pill's
+   rendered size or the handle's height (it lives out of flow). Tune the inset
+   via --glidesheet-handle-hit-y / --glidesheet-handle-hit-x. */
+[data-glidesheet-handle-hitarea]::before {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--glidesheet-handle-hit-y, 14px))
+    calc(-1 * var(--glidesheet-handle-hit-x, 32px));
 }
 
 /* ── Footer ── */
