@@ -59,7 +59,9 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
   }, [hasSnapPoints]);
 
   // Prevent native touch scroll so pointer events can drive sheet drag.
-  // In scrollable areas: allow scroll, but preventDefault when at top pulling down.
+  // In vertically scrollable areas: allow scroll, but preventDefault when at top pulling down.
+  // In horizontally scrollable areas (and no-drag areas): never preventDefault — the sheet
+  // does not drag there, so the native scroll must be left alone.
   // In non-scrollable areas: always preventDefault.
   useEffect(() => {
     const el = sheetRef.current;
@@ -67,8 +69,9 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
 
     let startY = 0;
     let scrollableEl: HTMLElement | null = null;
+    let isFreeScroll = false;
 
-    const findScrollable = (target: EventTarget | null): HTMLElement | null => {
+    const findVerticalScrollable = (target: EventTarget | null): HTMLElement | null => {
       let node = target as HTMLElement | null;
       while (node && node !== el) {
         if (node.scrollHeight > node.clientHeight) {
@@ -80,13 +83,33 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       return null;
     };
 
+    const findHorizontalScrollable = (target: EventTarget | null): HTMLElement | null => {
+      let node = target as HTMLElement | null;
+      while (node && node !== el) {
+        if (node.scrollWidth > node.clientWidth) {
+          const cs = window.getComputedStyle(node);
+          if (/(auto|scroll)/.test(cs.overflowX)) return node;
+        }
+        node = node.parentElement;
+      }
+      return null;
+    };
+
     const onTouchStart = (e: TouchEvent) => {
       startY = e.touches[0].clientY;
-      scrollableEl = findScrollable(e.target);
+      const target = e.target as HTMLElement | null;
+      scrollableEl = findVerticalScrollable(e.target);
+      // No vertical scroller to arbitrate: a horizontal scroller or a no-drag area
+      // still owns its gesture (the sheet never drags there), so leave it to the
+      // browser instead of cancelling every touchmove.
+      isFreeScroll =
+        !scrollableEl &&
+        (!!findHorizontalScrollable(target) || !!target?.closest?.('[data-glidesheet-no-drag]'));
     };
 
     const onTouchMove = (e: TouchEvent) => {
       if (!e.cancelable) return;
+      if (isFreeScroll) return;
 
       if (!scrollableEl) {
         e.preventDefault();
