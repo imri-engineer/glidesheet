@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.8
+
+### Fixed
+- **Horizontal scrolling inside a sheet no longer blocked on touch devices.** The
+  non-passive `touchmove` guard on the sheet resolved the touched scroll container by
+  looking at vertical overflow only. A horizontally scrollable row (`overflow-x: auto`,
+  no vertical overflow) was therefore treated as non-scrollable and every `touchmove`
+  was `preventDefault()`-ed, killing the native horizontal scroll. The guard now also
+  detects horizontal scrollers, and — when no vertical scroller arbitrates the gesture —
+  leaves horizontal scrollers and `[data-glidesheet-no-drag]` areas to the browser.
+  Vertical drag/scroll behaviour is unchanged.
+
 ## 0.5.6 (2026-06-22)
 
 ### Changes
