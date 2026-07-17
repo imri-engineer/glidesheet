@@ -1,6 +1,6 @@
 {
   "name": "glidesheet",
-  "version": "0.5.8",
+  "version": "0.6.0",
   "description": "A performant React bottom sheet with reliable scroll-vs-drag detection",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

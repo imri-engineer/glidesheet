@@ -347,6 +347,7 @@ A floating element that hovers above the sheet and fades out as the sheet expand
 | `hideWhileDragging` | `boolean` | `false` | Hide bar during drag |
 | `fadeStartPercent` | `number` | `50` | Sheet height % where fade begins |
 | `fadeEndPercent` | `number` | `65` | Sheet height % where bar is fully hidden |
+| `gapFade` | `boolean` | `false` | Paint a gradient in the gap so content scrolling under the bar dissolves into the sheet instead of being cut off. Set `--glidesheet-gap-fade-color` to the sheet's background. (Fades the **gap** — unlike `fadeStartPercent`/`fadeEndPercent`, which fade the **bar**.) |
 
 ### `<BottomSheet.NestedRoot>`
 
@@ -361,6 +362,10 @@ Same API as Root, for nested sheets. Automatically handles parent stacking effec
   --glidesheet-handle-radius: 1.5rem;    /* Handle top border radius */
   --glidesheet-handle-bg: inherit;       /* Handle background */
   --glidesheet-handle-pill-bg: rgba(0, 0, 0, 0.25); /* Handle pill color */
+
+  /* FloatingBar `gapFade` (set on the FloatingBar, not :root) */
+  --glidesheet-gap-fade-color: Canvas;    /* Gradient colour — use the sheet's background */
+  --glidesheet-gap-fade-top-opacity: 15%; /* Tint kept at the top (never fully transparent) */
 }
 ```
 
@@ -378,6 +383,7 @@ Use these for custom styling:
 | `data-glidesheet-handle` | — | Handle |
 | `data-glidesheet-footer` | — | Footer |
 | `data-glidesheet-floating-bar` | — | FloatingBar |
+| `data-glidesheet-floating-bar-gap` | — | FloatingBar gap fade layer (`gapFade`) |
 | `data-glidesheet-no-drag` | — | Any child (opt-out from drag) |
 
 ## Comparison

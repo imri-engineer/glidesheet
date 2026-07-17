@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.6.0
+
+### Added
+- **`gapFade` on `FloatingBar`** — paints a gradient in the gap between the bar and the
+  sheet, so content scrolling underneath dissolves into the sheet instead of being cut
+  off at a hard edge. The layer spans from the top of the bar down to the sheet (so it
+  also covers the area *behind* the bar, which is narrower than the viewport) and sits
+  below the bar, which stays crisp on top. It tracks the bar frame-for-frame and fades
+  out with it as the sheet rises.
+  - `--glidesheet-gap-fade-color` (default: `Canvas`) — set it to the sheet's own
+    background, e.g. `style={{ '--glidesheet-gap-fade-color': 'var(--surface)' }}`.
+  - `--glidesheet-gap-fade-top-opacity` (default: `15%`) — the gradient's top keeps this
+    much tint rather than reaching full transparency, so there is no hard "nothing" edge.
+
+  Note the name: `fadeStartPercent`/`fadeEndPercent` fade the **bar**; `gapFade` fades
+  the **gap**.
+
+### Fixed
+- **`FloatingBar` no longer flashes one bar-height too low on its first frame.** The
+  bar's height was measured by a state setter on the ref callback, which only runs after
+  the first paint — so the initial `top` was computed with `barHeight = 0`. It is now
+  measured from the node inside the RAF loop, where the node is already laid out. As a
+  side effect the height is re-read every frame, so a bar whose content changes height
+  (wrapping, a swapped toolbar) now repositions instead of keeping a stale height.
+
 ## 0.5.8
 
 ### Fixed
