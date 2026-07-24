@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.1
+
+### Fixed
+- **`FloatingBar` no longer re-renders its consumers 60×/second at rest.** The position
+  `update` runs on a permanent RAF loop and called `setPosition` with a fresh object
+  every frame, so React saw a new state reference each tick and re-rendered every
+  consumer continuously — even when the sheet was idle. `setPosition` now bails out
+  (returns the previous state) when `top`/`opacity`/`visible`/`sheetTop` are all
+  unchanged, so a motionless sheet triggers no renders.
+
 ## 0.6.0
 
 ### Added

@@ -101,12 +101,16 @@ export const FloatingBar = forwardRef<HTMLDivElement, FloatingBarProps>(function
       const barHeight = barRef.current?.offsetHeight ?? 0;
       const topPos = sheetTop - gap - barHeight + slideOffset;
 
-      setPosition({
-        top: topPos,
-        opacity: fadeOpacity,
-        visible: fadeOpacity > 0,
-        sheetTop,
-      });
+      // Bail out when nothing changed: this runs on a permanent rAF loop, so a
+      // fresh object every frame would re-render every consumer 60x/s at rest.
+      setPosition(prev =>
+        prev.top === topPos &&
+        prev.opacity === fadeOpacity &&
+        prev.visible === (fadeOpacity > 0) &&
+        prev.sheetTop === sheetTop
+          ? prev
+          : { top: topPos, opacity: fadeOpacity, visible: fadeOpacity > 0, sheetTop }
+      );
 
       rafRef.current = requestAnimationFrame(update);
     };
