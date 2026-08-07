@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.7.1
+
+### Fixed
+- **`data-glidesheet-no-drag` no longer steals the gesture from its carousel.** Two
+  follow-ups to 0.7.0's directional arbitration:
+  - The sheet no longer calls `onPress` (and thus `setPointerCapture`) on pointer-down
+    inside a no-drag area — capturing the pointer starved the carousel of its own
+    events, so a horizontal swipe still dragged/closed the sheet. It now presses
+    *retroactively* only once the swipe is judged vertical.
+  - A no-drag area is now treated as free-scroll **unconditionally** (even nested in a
+    vertical scroller), so the document-level `touchmove` scroll-lock no longer
+    `preventDefault`s the first pixels of a swipe — removing the dead zone where
+    neither the carousel scrolled nor the sheet moved.
+
+## 0.7.0
+
+### Changed
+- **`data-glidesheet-no-drag` now arbitrates by direction instead of blocking drag
+  outright.** Previously any gesture starting in a no-drag area was fully prevented
+  from dragging the sheet, so you couldn't pull the sheet down when your finger
+  started on a horizontal carousel. Now, on the first move past the start threshold,
+  the swipe angle decides: horizontal (≤ threshold) stays in the area, vertical
+  (> threshold) drags the sheet. The decision is locked for the rest of the gesture.
+  Threshold defaults to **65°**, customisable per element via the new
+  `--glidesheet-no-drag-h-angle` CSS variable (degrees).
+
 ## 0.6.1
 
 ### Fixed

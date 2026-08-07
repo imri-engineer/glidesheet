@@ -123,10 +123,13 @@ The scroll-to-drag transition is automatic. Structure scrollable content like th
 </BottomSheet.Content>
 ```
 
-Opt out specific elements from drag with `data-glidesheet-no-drag`:
+Opt out specific elements from drag with `data-glidesheet-no-drag`. Inside such an
+area (e.g. a horizontal carousel) the gesture is arbitrated by direction: a
+horizontal swipe stays in the area, a vertical swipe still drags the sheet. The
+threshold defaults to 65° and is tunable per element via `--glidesheet-no-drag-h-angle`.
 
 ```tsx
-<div data-glidesheet-no-drag>This won't trigger sheet drag</div>
+<div data-glidesheet-no-drag>Horizontal swipes scroll here; vertical drags the sheet</div>
 ```
 
 ## useBottomSheet Hook

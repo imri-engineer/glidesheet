@@ -159,6 +159,13 @@ interface UseBottomSheetReturn {
 --glidesheet-handle-radius: 1.5rem;
 --glidesheet-handle-bg: inherit;
 --glidesheet-handle-pill-bg: rgba(0, 0, 0, 0.25);
+
+/* Set on a data-glidesheet-no-drag element (not :root) */
+--glidesheet-no-drag-h-angle: 65; /* swipe angle (deg) ≤ this stays in the area */
+
+/* Set on a FloatingBar with gapFade (not :root) */
+--glidesheet-gap-fade-color: Canvas;
+--glidesheet-gap-fade-top-opacity: 15%;
 ```
 
 ## Data Attributes (for styling)
@@ -173,4 +180,4 @@ interface UseBottomSheetReturn {
 | `data-glidesheet-handle` | Handle | Target the handle |
 | `data-glidesheet-footer` | Footer | Target the footer |
 | `data-glidesheet-floating-bar` | FloatingBar | Target the floating bar |
-| `data-glidesheet-no-drag` | Any element | Opt out of sheet drag |
+| `data-glidesheet-no-drag` | Any element | Horizontal swipes stay here; vertical still drags the sheet (threshold `--glidesheet-no-drag-h-angle`, default 65°) |

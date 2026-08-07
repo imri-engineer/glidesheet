@@ -154,7 +154,24 @@ To opt-out specific elements from drag:
 
 ```tsx
 <div data-glidesheet-no-drag>
-  This area won't trigger sheet drag
+  Horizontal swipes stay here; a vertical swipe still drags the sheet
+</div>
+```
+
+Inside a `data-glidesheet-no-drag` area (e.g. a horizontal carousel), the gesture
+is **arbitrated by direction** rather than blocked outright: on the first move past
+the start threshold, GlideSheet measures the swipe angle from the X axis. A
+**horizontal** swipe (angle ≤ the threshold) stays in the area — the sheet never
+moves — while a **vertical** swipe (angle > the threshold) still drags the sheet as
+usual. The decision is locked for the rest of that gesture (no mid-swipe flip).
+
+The threshold defaults to **65°** and is customisable per element via the
+`--glidesheet-no-drag-h-angle` CSS variable (in degrees), so a carousel that needs
+to be more (or less) forgiving of diagonal swipes can tune it locally:
+
+```tsx
+<div data-glidesheet-no-drag style={{ '--glidesheet-no-drag-h-angle': '55' }}>
+  Only swipes within 55° of horizontal keep the carousel
 </div>
 ```
 
@@ -366,6 +383,9 @@ Same API as Root, for nested sheets. Automatically handles parent stacking effec
   /* FloatingBar `gapFade` (set on the FloatingBar, not :root) */
   --glidesheet-gap-fade-color: Canvas;    /* Gradient colour — use the sheet's background */
   --glidesheet-gap-fade-top-opacity: 15%; /* Tint kept at the top (never fully transparent) */
+
+  /* `data-glidesheet-no-drag` area (set on that element, not :root) */
+  --glidesheet-no-drag-h-angle: 65;       /* Swipe angle (deg) ≤ this stays in the area */
 }
 ```
 
@@ -384,7 +404,7 @@ Use these for custom styling:
 | `data-glidesheet-footer` | — | Footer |
 | `data-glidesheet-floating-bar` | — | FloatingBar |
 | `data-glidesheet-floating-bar-gap` | — | FloatingBar gap fade layer (`gapFade`) |
-| `data-glidesheet-no-drag` | — | Any child (opt-out from drag) |
+| `data-glidesheet-no-drag` | — | Any child — horizontal swipes stay here, vertical still drags the sheet (see [How scroll-vs-drag works](#how-scroll-vs-drag-works)) |
 
 ## Comparison
 

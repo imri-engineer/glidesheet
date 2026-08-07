@@ -1,9 +1,28 @@
-import { forwardRef, useCallback, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type HTMLAttributes,
+  type ReactNode,
+} from 'react';
 import { useSheetContext } from './context';
 
 const DEFAULT_GAP = 16;
 const FADE_START = 50;
 const FADE_END = 65;
+
+/** Keep only CSS custom properties (`--*`) from a style object. */
+function cssVarsOnly(style: CSSProperties | undefined): CSSProperties {
+  if (!style) return {};
+  const out: Record<string, unknown> = {};
+  for (const key of Object.keys(style)) {
+    if (key.startsWith('--')) out[key] = (style as Record<string, unknown>)[key];
+  }
+  return out as CSSProperties;
+}
 
 export interface FloatingBarProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
@@ -153,6 +172,11 @@ export const FloatingBar = forwardRef<HTMLDivElement, FloatingBarProps>(function
         <div
           data-glidesheet-floating-bar-gap=""
           style={{
+            // Forward only the consumer's CSS custom props (e.g.
+            // --glidesheet-gap-fade-color) — this fixed, portalled element isn't a
+            // child of the bar, so the cascade won't deliver them otherwise. We copy
+            // only `--*` keys, never the bar's visual styles (bg/border/shadow).
+            ...cssVarsOnly(style),
             position: 'fixed',
             top: `${position.top}px`,
             height: `${Math.max(0, position.sheetTop - position.top)}px`,
