@@ -18,6 +18,8 @@ interface UseDragOptions {
   snapPointsOffset: number[];
   shouldFade: boolean;
   fadeFromIndex: number | undefined;
+  /** Progressive overlay owns the overlay element — classic fade writers are disabled. */
+  progressiveOverlay: boolean;
   onDragSnapPoints: (args: { draggedDistance: number }) => void;
   onReleaseSnapPoints: (args: {
     draggedDistance: number;
@@ -46,6 +48,7 @@ export function useDrag({
   snapPointsOffset,
   shouldFade,
   fadeFromIndex,
+  progressiveOverlay,
   onDragSnapPoints,
   onReleaseSnapPoints,
   getSnapPointsPercentageDragged,
@@ -122,6 +125,13 @@ export function useDrag({
     if (sheetRef.current && !sheetRef.current.contains(event.target as Node)) return;
 
     drawerHeightRef.current = sheetRef.current?.getBoundingClientRect().height || 0;
+    // Sync dragProgress with the sheet's CURRENT position before the first move:
+    // it still holds the value frozen at the previous release, and the progressive
+    // overlay switches to it on press — a stale value made it blink.
+    if (sheetRef.current) {
+      const sheetTop = sheetRef.current.getBoundingClientRect().top;
+      setDragProgress(Math.max(0, Math.min(1, (window.innerHeight - sheetTop) / window.innerHeight)));
+    }
     setIsDragging(true);
     onDragStartProp?.();
     dragStartTime.current = new Date();
@@ -174,7 +184,12 @@ export function useDrag({
     const opacityValue = 1 - percentageDragged;
     if (shouldFade || (fadeFromIndex && activeSnapPointIndex === fadeFromIndex - 1)) {
       onDragProp?.(event, percentageDragged);
-      set(overlayRef.current, { opacity: `${opacityValue}`, transition: 'none' }, true);
+      // In progressive mode the overlay's darkness is driven by backgroundColor
+      // (Overlay component) — writing `opacity` here would multiply with it and
+      // cause sudden darkness jumps when a drag starts near the fade index.
+      if (!progressiveOverlay) {
+        set(overlayRef.current, { opacity: `${opacityValue}`, transition: 'none' }, true);
+      }
     }
 
     if (!snapPoints) {
@@ -189,10 +204,12 @@ export function useDrag({
       transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
     });
     overlayRef.current?.classList.remove(DRAG_CLASS);
-    set(overlayRef.current, {
-      transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
-      opacity: '1',
-    });
+    if (!progressiveOverlay) {
+      set(overlayRef.current, {
+        transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+        opacity: '1',
+      });
+    }
   }
 
   function cancelDrag() {

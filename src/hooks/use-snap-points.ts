@@ -14,6 +14,7 @@ export function useSnapPoints({
   onSnapPointChange,
   container,
   snapToSequentialPoint,
+  progressiveOverlay,
 }: {
   activeSnapPointProp?: SnapPoint | null;
   setActiveSnapPointProp?: (sp: SnapPoint | null) => void;
@@ -24,6 +25,8 @@ export function useSnapPoints({
   onSnapPointChange: (activeSnapPointIndex: number) => void;
   container?: HTMLElement | null;
   snapToSequentialPoint?: boolean;
+  /** Progressive overlay owns the overlay element — classic fade writers are disabled. */
+  progressiveOverlay?: boolean;
 }) {
   const [activeSnapPoint, setActiveSnapPoint] = useControllableState<SnapPoint | null>({
     prop: activeSnapPointProp,
@@ -94,23 +97,27 @@ export function useSnapPoints({
         transform: `translate3d(0, ${dimension}px, 0)`,
       });
 
-      if (
-        snapPointsOffset &&
-        newIndex !== snapPointsOffset.length - 1 &&
-        fadeFromIndex !== undefined &&
-        newIndex !== fadeFromIndex &&
-        newIndex !== null &&
-        newIndex < fadeFromIndex
-      ) {
-        set(overlayRef.current, {
-          transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
-          opacity: '0',
-        });
-      } else {
-        set(overlayRef.current, {
-          transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
-          opacity: '1',
-        });
+      // In progressive mode the Overlay component drives darkness via
+      // backgroundColor — inline opacity writes would fight it (darkness jumps).
+      if (!progressiveOverlay) {
+        if (
+          snapPointsOffset &&
+          newIndex !== snapPointsOffset.length - 1 &&
+          fadeFromIndex !== undefined &&
+          newIndex !== fadeFromIndex &&
+          newIndex !== null &&
+          newIndex < fadeFromIndex
+        ) {
+          set(overlayRef.current, {
+            transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+            opacity: '0',
+          });
+        } else {
+          set(overlayRef.current, {
+            transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+            opacity: '1',
+          });
+        }
       }
 
       setActiveSnapPoint(snapPoints?.[Math.max(newIndex ?? 0, 0)]);
@@ -146,7 +153,7 @@ export function useSnapPoints({
     const isFirst = activeSnapPointIndex === 0;
     const hasDraggedUp = draggedDistance > 0;
 
-    if (isOverlaySnapPoint) {
+    if (isOverlaySnapPoint && !progressiveOverlay) {
       set(overlayRef.current, {
         transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
       });

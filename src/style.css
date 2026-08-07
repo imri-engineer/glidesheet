@@ -90,7 +90,9 @@
   transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-[data-glidesheet-overlay][data-snap-points='true']:not([data-snap-points-overlay='true']):not([data-state='closed']) {
+/* Pas en mode progressif : l'obscurité y vit dans backgroundColor (Overlay),
+   l'opacité de l'élément doit rester 1 en permanence. */
+[data-glidesheet-overlay][data-snap-points='true']:not([data-snap-points-overlay='true']):not([data-state='closed']):not([data-progressive='true']) {
   opacity: 0;
 }
 

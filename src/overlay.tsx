@@ -18,6 +18,8 @@ export const Overlay = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       progressiveOverlay,
       progressiveOverlayMaxOpacity,
       dragProgress,
+      isDragging,
+      activeSnapPoint,
     } = useSheetContext();
     const composedRef = useComposedRefs(ref, overlayRef);
     const hasSnapPoints = snapPoints && snapPoints.length > 0;
@@ -51,22 +53,33 @@ export const Overlay = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       const minPercent = firstSnapPercent + 0.02;
       const maxPercent = minPercent + 0.45;
 
+      // While dragging, darkness tracks the finger (dragProgress, no easing).
+      // At rest, dragProgress is stale (frozen at the release point, before the
+      // sheet finishes its animated snap) — derive the progress from the ACTIVE
+      // snap position instead, and ease towards it in sync with the sheet.
+      // Also covers programmatic snaps (no drag at all).
+      const restProgress =
+        activeSnapPoint != null ? snapPointPercent(activeSnapPoint) : dragProgress;
+      const effectiveProgress = isDragging ? dragProgress : restProgress;
+
       let opacity: number;
-      if (dragProgress <= minPercent) {
+      if (effectiveProgress <= minPercent) {
         opacity = 0;
-      } else if (dragProgress >= maxPercent) {
+      } else if (effectiveProgress >= maxPercent) {
         opacity = progressiveOverlayMaxOpacity;
       } else {
-        const progress = (dragProgress - minPercent) / (maxPercent - minPercent);
+        const progress = (effectiveProgress - minPercent) / (maxPercent - minPercent);
         opacity = progress * progressiveOverlayMaxOpacity;
       }
 
       return {
         backgroundColor: `rgba(0, 0, 0, ${opacity})`,
-        transition: 'none',
+        transition: isDragging
+          ? 'none'
+          : `background-color ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
         pointerEvents: (opacity > 0 ? 'auto' : 'none') as 'auto' | 'none',
       };
-    }, [progressiveOverlay, isOpen, dragProgress, progressiveOverlayMaxOpacity, hasSnapPoints, snapPoints]);
+    }, [progressiveOverlay, isOpen, dragProgress, isDragging, activeSnapPoint, progressiveOverlayMaxOpacity, hasSnapPoints, snapPoints]);
 
     return (
       <div
@@ -85,6 +98,12 @@ export const Overlay = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
     );
   },
 );
+
+function snapPointPercent(sp: number | string): number {
+  if (typeof sp === 'number') return sp;
+  const px = parseFloat(sp);
+  return Number.isFinite(px) ? px / window.innerHeight : 0;
+}
 
 function getFirstSnapPercent(snapPoints: (number | string)[]): number {
   for (const sp of snapPoints) {

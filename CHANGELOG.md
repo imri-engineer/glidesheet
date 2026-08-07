@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.7.2
+
+### Fixed
+- **Progressive overlay is now fully self-consistent — no more darkness glitches.**
+  Five fixes working together:
+  - The classic `fadeFromIndex` writers no longer touch the overlay's inline
+    `opacity` in progressive mode — their writes multiplied with the progressive
+    `backgroundColor` and caused sudden darkness jumps when touching the sheet
+    near the top snap.
+  - The snap-points `opacity: 0` CSS rule now excludes `[data-progressive]` —
+    it out-specified the progressive rule and hid the overlay during drags once
+    the inline writers were removed.
+  - At rest, the progressive opacity is derived from the ACTIVE snap position
+    (with an eased transition) instead of the stale `dragProgress` frozen at the
+    release point — kills the residual veil at the first snap, desync on release,
+    and makes programmatic snaps render correctly.
+  - `Content` now handles `pointercancel` (fast flicks often end with it instead
+    of `pointerup`) — without a release, `isDragging` stayed stuck and the
+    overlay froze dark. Also un-sticks the sheet itself.
+  - `dragProgress` is synced to the sheet's current position on press — it still
+    held the previous gesture's value, making the overlay blink on touch.
+
 ## 0.7.1
 
 ### Fixed

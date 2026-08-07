@@ -96,6 +96,7 @@ export function Root({
     onSnapPointChange,
     container,
     snapToSequentialPoint,
+    progressiveOverlay,
   });
 
   // ── Close/Open ──
@@ -151,6 +152,7 @@ export function Root({
     snapPointsOffset,
     shouldFade,
     fadeFromIndex,
+    progressiveOverlay,
     onDragSnapPoints,
     onReleaseSnapPoints,
     getSnapPointsPercentageDragged,
