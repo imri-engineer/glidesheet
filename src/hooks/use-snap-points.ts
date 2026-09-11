@@ -66,7 +66,7 @@ export function useSnapPoints({
       snapPoints[fadeFromIndex] === activeSnapPoint) ||
     !snapPoints;
 
-  const snapPointsOffset = useMemo(() => {
+  const computedOffsets = useMemo(() => {
     const containerHeight = container
       ? container.getBoundingClientRect().height
       : typeof window !== 'undefined'
@@ -81,6 +81,13 @@ export function useSnapPoints({
       }) ?? []
     );
   }, [snapPoints, windowDimensions, container]);
+
+  // Stable by VALUE: a resize that leaves the offsets unchanged (keyboard,
+  // browser chrome) must not produce a new array — the re-snap effect below
+  // would fire again and rewrite transform/transition for nothing.
+  const offsetsKey = computedOffsets.join(',');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const snapPointsOffset = useMemo(() => computedOffsets, [offsetsKey]);
 
   const activeSnapPointOffset = useMemo(
     () => (activeSnapPointIndex !== null ? snapPointsOffset?.[activeSnapPointIndex] : null),

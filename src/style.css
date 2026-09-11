@@ -3,7 +3,12 @@
   position: fixed;
   z-index: var(--glidesheet-z-index, 50);
   will-change: transform;
+  /* `clip`, not `hidden`: a `hidden` box is still a scroll container, and WebKit
+     scrolls it on input focus to reveal the field above the keyboard — the whole
+     sheet content jumps up (the safe-area extension below gives it scrollable
+     overflow). A `clip` box cannot scroll at all. `hidden` stays as fallback. */
   overflow: hidden;
+  overflow: clip;
   overscroll-behavior: contain;
   transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
   animation-duration: 0.5s;

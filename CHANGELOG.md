@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.7.3
+
+### Fixed
+- **Non-modal sheets no longer ride up when an input inside them gets focus
+  (iOS keyboard).** On iOS, WebKit scrolls the *document* by the keyboard
+  height to reveal a focused field, and a `position: fixed` sheet moves with
+  the page — measured on an iPhone simulator: `scrollY` / `visualViewport.offsetTop`
+  jumped to the keyboard height, the sheet's own `scrollTop` and transform did
+  not change. Modal sheets were immune because the body lock already parks the
+  focused input off-screen for a frame and resets the window scroll. A new
+  `useKeyboardScrollGuard` does the equivalent for non-modal sheets without
+  locking the page: same off-screen trick at focus, and for a short window
+  after focus and after each keyboard resize, a scroll not driven by a finger
+  puts the window back where it was.
+- The sheet box is `overflow: clip` (with `hidden` as fallback) plus a `scroll`
+  guard: with the safe-area extension below it, the `hidden` box had 3× its
+  height of scrollable overflow, so anything scrolling it (WebKit on some
+  focus paths, a stray `scrollIntoView`) shifted the whole content. A `clip`
+  box cannot scroll at all.
+- Snap-point offsets are now stable by value: a resize that leaves them
+  unchanged no longer triggers the re-snap effect (transform/transition
+  rewrite, `onActiveSnapPointChange` call).
+
+### Changed
+- Dev types bumped to `@types/react@19` / `@types/react-dom@19`.
+
 ## 0.7.2
 
 ### Fixed

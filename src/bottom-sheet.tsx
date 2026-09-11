@@ -6,6 +6,7 @@ import { useBodyLock } from './hooks/use-body-lock';
 import { useFocusTrap } from './hooks/use-focus-trap';
 import { useDrag } from './hooks/use-drag';
 import { useKeyboard } from './hooks/use-keyboard';
+import { useKeyboardScrollGuard } from './hooks/use-keyboard-scroll-guard';
 import { useNested } from './hooks/use-nested';
 import { set, reset } from './utils/style-cache';
 import { TRANSITIONS, CLOSE_THRESHOLD, SCROLL_LOCK_TIMEOUT, DRAG_CLASS } from './constants';
@@ -177,6 +178,9 @@ export function Root({
     activeSnapPointIndex,
     keyboardIsOpen,
   });
+
+  // Modal sheets get this from the body lock; non-modal ones need it too.
+  useKeyboardScrollGuard({ sheetRef, isOpen, enabled: !modal });
 
   // ── Nested ──
   const nested_ = useNested({ sheetRef });

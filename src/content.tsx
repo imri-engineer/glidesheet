@@ -73,6 +73,20 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
     return () => cancelAnimationFrame(id);
   }, [hasSnapPoints]);
 
+  // The sheet itself is never a scroller. Engines without `overflow: clip`
+  // (WebKit < 16) still treat the `hidden` box as scrollable and scroll it on
+  // input focus to reveal the field above the keyboard — undo that.
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      if (el.scrollTop !== 0) el.scrollTop = 0;
+      if (el.scrollLeft !== 0) el.scrollLeft = 0;
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [sheetRef]);
+
   // Prevent native touch scroll so pointer events can drive sheet drag.
   // In vertically scrollable areas: allow scroll, but preventDefault when at top pulling down.
   // In horizontally scrollable areas (and no-drag areas): never preventDefault — the sheet
