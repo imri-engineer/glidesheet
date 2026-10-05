@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useRef, useState, type CSSProperties, type HTMLAttributes } from 'react';
 import { useSheetContext } from './context';
 import { useComposedRefs } from './hooks/use-composed-refs';
+import { isInDragZone } from './utils/dom';
 
 // In a `[data-glidesheet-no-drag]` area, a swipe whose angle (from the X axis)
 // is ≤ this stays in the area (e.g. a horizontal carousel); steeper → the sheet
@@ -127,13 +128,14 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
     const onTouchStart = (e: TouchEvent) => {
       startY = e.touches[0].clientY;
       const target = e.target as HTMLElement | null;
-      scrollableEl = findVerticalScrollable(e.target);
+      // A drag zone owns the gesture: no native scroll behind it.
+      scrollableEl = isInDragZone(target) ? null : findVerticalScrollable(e.target);
       // A no-drag area owns its gesture unconditionally — even nested inside a
       // vertical scroller — so the browser must never cancel its touchmove (that
       // was swallowing the first pixels of a carousel swipe). A horizontal
       // scroller is free too, but only when no vertical scroller sits above it.
       isFreeScroll =
-        !!target?.closest?.('[data-glidesheet-no-drag]') ||
+        (!isInDragZone(target) && !!target?.closest?.('[data-glidesheet-no-drag]')) ||
         (!scrollableEl && !!findHorizontalScrollable(target));
     };
 
@@ -206,6 +208,11 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
         // captures the pointer, which starves the carousel of its own events. We
         // arbitrate by direction in onPointerMove and only press (retroactively)
         // if the swipe turns out vertical. A horizontal swipe never touches the sheet.
+        if (isInDragZone(target)) {
+          noDragAxisRef.current = null;
+          onPress(event);
+          return;
+        }
         if (target.closest('[data-glidesheet-no-drag]')) {
           noDragAxisRef.current = 'undecided';
           return;

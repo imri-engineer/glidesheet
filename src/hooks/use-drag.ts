@@ -1,6 +1,6 @@
 import { useRef, useState, type RefObject, type PointerEvent as ReactPointerEvent } from 'react';
 import { set, reset } from '../utils/style-cache';
-import { getTranslateY } from '../utils/dom';
+import { getTranslateY, isInDragZone } from '../utils/dom';
 import { TRANSITIONS, VELOCITY_THRESHOLD, DRAG_CLASS } from '../constants';
 import { isIOS } from '../utils/browser';
 import type { SnapPoint } from '../types';
@@ -75,6 +75,7 @@ export function useDrag({
     const date = new Date();
 
     if (element.tagName === 'SELECT') return false;
+    if (isInDragZone(element)) return !(openTime.current && date.getTime() - openTime.current.getTime() < 500);
     if (element.hasAttribute('data-glidesheet-no-drag') || element.closest('[data-glidesheet-no-drag]'))
       return false;
     if (openTime.current && date.getTime() - openTime.current.getTime() < 500) return false;

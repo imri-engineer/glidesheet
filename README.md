@@ -175,6 +175,18 @@ to be more (or less) forgiving of diagonal swipes can tune it locally:
 </div>
 ```
 
+To force the opposite — a zone that **always drags the sheet**, even when it sits
+inside a scroller that is scrolled (typically a sticky header floating over the
+list) — mark it with `data-glidesheet-drag`. A swipe that starts there never
+scrolls the content behind it. A `data-glidesheet-no-drag` area nested inside the
+zone still wins. `Handle` is a drag zone out of the box.
+
+```tsx
+<div data-glidesheet-drag style={{ position: 'sticky', top: 0 }}>
+  Header — swiping here moves the sheet, not the list behind
+</div>
+```
+
 ## Floating Mode
 
 ```tsx
@@ -405,6 +417,7 @@ Use these for custom styling:
 | `data-glidesheet-floating-bar` | — | FloatingBar |
 | `data-glidesheet-floating-bar-gap` | — | FloatingBar gap fade layer (`gapFade`) |
 | `data-glidesheet-no-drag` | — | Any child — horizontal swipes stay here, vertical still drags the sheet (see [How scroll-vs-drag works](#how-scroll-vs-drag-works)) |
+| `data-glidesheet-drag` | — | Any child (and Handle) — always drags the sheet, even over a scrolled scroller (sticky headers) |
 
 ## Comparison
 

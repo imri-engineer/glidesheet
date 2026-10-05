@@ -69,3 +69,13 @@ export function chain<T extends (...args: any[]) => any>(...fns: (T | undefined)
     }
   };
 }
+
+// A `[data-glidesheet-drag]` zone (e.g. a sticky header living inside the scroller)
+// always drags the sheet, even when its scroller is scrolled — unless a nested
+// `[data-glidesheet-no-drag]` area sits between the target and the zone.
+export function isInDragZone(target: Element | null): boolean {
+  const zone = target?.closest?.('[data-glidesheet-drag]');
+  if (!zone) return false;
+  const noDrag = target!.closest('[data-glidesheet-no-drag]');
+  return !noDrag || !zone.contains(noDrag);
+}

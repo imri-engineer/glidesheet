@@ -83,6 +83,7 @@ export const Handle = forwardRef<HTMLDivElement, HandleProps>(function Handle(
       }}
       ref={ref}
       data-glidesheet-handle=""
+      data-glidesheet-drag=""
       data-visible={isOpen ? 'true' : 'false'}
       aria-hidden="true"
       {...rest}

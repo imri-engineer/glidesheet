@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.0
+
+### Added
+- **`data-glidesheet-drag` — zones that always drag the sheet.** A swipe that
+  starts inside such a zone moves the sheet even when the zone lives inside a
+  scroller that is scrolled, and never scrolls the content behind it. Built for
+  sticky headers floating over the list: until now, once the list had scrolled,
+  a swipe on the header scrolled the list instead of dragging the sheet (both
+  the pointer press and `shouldDrag` bailed out on the scrolled ancestor, and
+  the touch layer let the browser scroll it). A `data-glidesheet-no-drag` area
+  nested inside the zone still wins. `Handle` is a drag zone by default.
+
 ## 0.7.3
 
 ### Fixed
