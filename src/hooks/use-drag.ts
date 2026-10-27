@@ -64,6 +64,9 @@ export function useDrag({
   const dragStartTime = useRef<Date | null>(null);
   const lastTimeDragPrevented = useRef<Date | null>(null);
   const isAllowedToDrag = useRef(false);
+  // Press handed over by a no-drag area once its swipe turned out vertical:
+  // the area no longer vetoes the drag.
+  const pressedFromNoDrag = useRef(false);
   const pointerStart = useRef(0);
   const justReleased = useRef(false);
   const drawerHeightRef = useRef(0);
@@ -76,7 +79,10 @@ export function useDrag({
 
     if (element.tagName === 'SELECT') return false;
     if (isInDragZone(element)) return !(openTime.current && date.getTime() - openTime.current.getTime() < 500);
-    if (element.hasAttribute('data-glidesheet-no-drag') || element.closest('[data-glidesheet-no-drag]'))
+    if (
+      !pressedFromNoDrag.current &&
+      (element.hasAttribute('data-glidesheet-no-drag') || element.closest('[data-glidesheet-no-drag]'))
+    )
       return false;
     if (openTime.current && date.getTime() - openTime.current.getTime() < 500) return false;
     if (swipeAmount !== null && swipeAmount > 0) return true;
@@ -121,9 +127,10 @@ export function useDrag({
     return true;
   }
 
-  function onPress(event: ReactPointerEvent<HTMLDivElement>) {
+  function onPress(event: ReactPointerEvent<HTMLDivElement>, fromNoDrag = false) {
     if (!dismissible && !snapPoints) return;
     if (sheetRef.current && !sheetRef.current.contains(event.target as Node)) return;
+    pressedFromNoDrag.current = fromNoDrag;
 
     drawerHeightRef.current = sheetRef.current?.getBoundingClientRect().height || 0;
     // Sync dragProgress with the sheet's CURRENT position before the first move:
@@ -217,6 +224,7 @@ export function useDrag({
     if (!isDragging || !sheetRef.current) return;
     sheetRef.current.classList.remove(DRAG_CLASS);
     isAllowedToDrag.current = false;
+    pressedFromNoDrag.current = false;
     setIsDragging(false);
     onDragEndProp?.();
   }
@@ -226,6 +234,7 @@ export function useDrag({
 
     sheetRef.current.classList.remove(DRAG_CLASS);
     isAllowedToDrag.current = false;
+    pressedFromNoDrag.current = false;
     setIsDragging(false);
     onDragEndProp?.();
 

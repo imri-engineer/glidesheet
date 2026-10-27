@@ -54,7 +54,7 @@ export interface SheetContextValue {
   closeThreshold: number;
   scrollLockTimeout: number;
   fadeFromIndex: number | undefined;
-  onPress: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onPress: (event: ReactPointerEvent<HTMLDivElement>, fromNoDrag?: boolean) => void;
   onDrag: (event: ReactPointerEvent<HTMLDivElement>) => void;
   onRelease: (event: ReactPointerEvent<HTMLDivElement> | null) => void;
   closeSheet: () => void;

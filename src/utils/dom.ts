@@ -4,6 +4,7 @@ export function getTranslateY(element: HTMLElement): number | null {
   const style = window.getComputedStyle(element);
   const transform =
     style.transform || (style as any).webkitTransform || (style as any).mozTransform;
+  if (!transform) return null;
 
   let mat = transform.match(/^matrix3d\((.+)\)$/);
   if (mat) return parseFloat(mat[1].split(', ')[13]);

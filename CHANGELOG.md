@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.8.1
+
+### Fixed
+- **A vertical swipe that starts in a `data-glidesheet-no-drag` area drags the
+  sheet again.** The direction arbitration added in 0.7.1 pressed the sheet once
+  the swipe turned out vertical, but `shouldDrag` still vetoed any target inside
+  a no-drag area, so the sheet never moved. On touch, the native scroll also took
+  the vertical swipe (no `preventDefault` in no-drag areas) and cancelled the
+  pointer. Both now follow the same angle arbitration: horizontal stays in the
+  area, vertical goes to the sheet — unless a scroller above the area is
+  scrolled, which then scrolls as before.
+- `getTranslateY` returns `null` instead of throwing when the computed style has
+  no `transform`.
+
 ## 0.8.0
 
 ### Added

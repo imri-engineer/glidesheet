@@ -39,6 +39,18 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
 
   const [delayedSnapPoints, setDelayedSnapPoints] = useState(false);
   const composedRef = useComposedRefs(ref, sheetRef);
+
+  const isInScrolledScroller = (target: HTMLElement): boolean => {
+    let node: HTMLElement | null = target;
+    while (node && node !== sheetRef.current) {
+      if (node.scrollHeight > node.clientHeight) {
+        const cs = window.getComputedStyle(node);
+        if (/(auto|scroll)/.test(cs.overflowY) && node.scrollTop > 0) return true;
+      }
+      node = node.parentElement;
+    }
+    return false;
+  };
   const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
   const lastKnownPointerEventRef = useRef<React.PointerEvent<HTMLDivElement> | null>(null);
   const wasBeyondThePointRef = useRef(false);
@@ -90,16 +102,19 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
 
   // Prevent native touch scroll so pointer events can drive sheet drag.
   // In vertically scrollable areas: allow scroll, but preventDefault when at top pulling down.
-  // In horizontally scrollable areas (and no-drag areas): never preventDefault — the sheet
-  // does not drag there, so the native scroll must be left alone.
+  // In horizontally scrollable areas: never preventDefault — the sheet does not drag
+  // there, so the native scroll must be left alone. No-drag areas are left alone too,
+  // until their swipe turns out vertical: then they follow the rules above.
   // In non-scrollable areas: always preventDefault.
   useEffect(() => {
     const el = sheetRef.current;
     if (!el) return;
 
+    let startX = 0;
     let startY = 0;
     let scrollableEl: HTMLElement | null = null;
     let isFreeScroll = false;
+    let noDragArea: HTMLElement | null = null;
 
     const findVerticalScrollable = (target: EventTarget | null): HTMLElement | null => {
       let node = target as HTMLElement | null;
@@ -126,6 +141,7 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
     };
 
     const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       const target = e.target as HTMLElement | null;
       // A drag zone owns the gesture: no native scroll behind it.
@@ -134,13 +150,22 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
       // vertical scroller — so the browser must never cancel its touchmove (that
       // was swallowing the first pixels of a carousel swipe). A horizontal
       // scroller is free too, but only when no vertical scroller sits above it.
-      isFreeScroll =
-        (!isInDragZone(target) && !!target?.closest?.('[data-glidesheet-no-drag]')) ||
-        (!scrollableEl && !!findHorizontalScrollable(target));
+      noDragArea = isInDragZone(target) ? null : (target?.closest?.('[data-glidesheet-no-drag]') as HTMLElement | null);
+      isFreeScroll = !!noDragArea || (!scrollableEl && !!findHorizontalScrollable(target));
     };
 
     const onTouchMove = (e: TouchEvent) => {
       if (!e.cancelable) return;
+      // Same arbitration as onPointerMove: a vertical swipe leaves the no-drag
+      // area to the sheet, so the native scroll must not take it (pointercancel).
+      if (noDragArea) {
+        const adx = Math.abs(e.touches[0].clientX - startX);
+        const ady = Math.abs(e.touches[0].clientY - startY);
+        if (Math.max(adx, ady) < 10) return;
+        const angle = (Math.atan2(ady, adx) * 180) / Math.PI;
+        isFreeScroll = angle <= noDragHAngle(el);
+        noDragArea = null;
+      }
       if (isFreeScroll) return;
 
       if (!scrollableEl) {
@@ -219,16 +244,7 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
         }
         noDragAxisRef.current = null;
 
-        let node: HTMLElement | null = target;
-        while (node && node !== sheetRef.current) {
-          if (node.scrollHeight > node.clientHeight) {
-            const cs = window.getComputedStyle(node);
-            if (/(auto|scroll)/.test(cs.overflowY) && node.scrollTop > 0) {
-              return;
-            }
-          }
-          node = node.parentElement;
-        }
+        if (isInScrolledScroller(target)) return;
 
         onPress(event);
       }}
@@ -255,9 +271,10 @@ export const Content = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>
             const angle = (Math.atan2(ady, adx) * 180) / Math.PI; // 0 = horizontal
             const horizontal = angle <= noDragHAngle(event.currentTarget as HTMLElement);
             noDragAxisRef.current = horizontal ? 'horizontal' : 'vertical';
-            if (!horizontal) {
-              // Retroactive press: start the sheet drag from here.
-              onPress(event);
+            // Retroactive press: start the sheet drag from here — unless a scroller
+            // above the area is scrolled, where the swipe scrolls it instead.
+            if (!horizontal && !isInScrolledScroller(event.target as HTMLElement)) {
+              onPress(event, true);
             }
           }
           if (noDragAxisRef.current === 'horizontal') return; // carousel keeps the gesture
